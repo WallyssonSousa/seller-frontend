@@ -64,7 +64,7 @@ class ApiClient {
     }
   }
 
-  // Auth endpoints
+
   async register(payload: {
     name: string
     cnpj: string
@@ -86,29 +86,31 @@ class ApiClient {
   }
 
   async login(payload: { email: string; password: string }) {
-    const response = await this.request<{ token: string }>("/auth/login", {
+    const response = await this.request<{ token?: string; access_token?: string }>("/auth/login", {
       method: "POST",
       body: JSON.stringify(payload),
     })
 
-    if (response.data?.token) {
-      this.setToken(response.data.token)
+    const token = response.data?.token ?? response.data?.access_token
+    if (token) {
+      this.setToken(token)
     }
 
     return response
   }
 
+
   async logout() {
     this.setToken(null)
   }
 
-  // Sellers endpoints
+
   async getSellers() {
     return this.request("/auth/users", { method: "GET" })
   }
 
   async getSeller(id: number) {
-    return this.request(`/auth/users/${id}`, { method: "GET" })
+    return this.request(`/auth/users/${id}/`, { method: "GET" })
   }
 
   async updateSeller(
@@ -127,13 +129,13 @@ class ApiClient {
     })
   }
 
-  // Products endpoints
+
   async getProducts() {
-    return this.request("/product", { method: "GET" })
+    return this.request("/product/", { method: "GET" })
   }
 
   async getProduct(id: number) {
-    return this.request(`/product/${id}`, { method: "GET" })
+    return this.request(`/product/${id}/`, { method: "GET" })
   }
 
   async createProduct(payload: {
@@ -166,22 +168,22 @@ class ApiClient {
   }
 
   async inactivateProduct(id: number) {
-    return this.request(`/product/${id}/inactivate`, {
+    return this.request(`/product/${id}/inactivate/`, {
       method: "PATCH",
     })
   }
 
-  // Sales endpoints
+
   async getSales() {
-    return this.request("/sale", { method: "GET" })
+    return this.request("/sale/", { method: "GET" })
   }
 
   async getSale(id: number) {
-    return this.request(`/sale/${id}`, { method: "GET" })
+    return this.request(`/sale/${id}/`, { method: "GET" })
   }
 
   async createSale(payload: { product_id: number; quantity: number }) {
-    return this.request("/sale", {
+    return this.request("/sale/", {
       method: "POST",
       body: JSON.stringify(payload),
     })
