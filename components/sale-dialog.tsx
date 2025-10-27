@@ -1,13 +1,24 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { api } from "@/lib/api"
 
@@ -42,21 +53,38 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
   }, [open])
 
   const loadProducts = async () => {
-    setIsLoadingProducts(true)
-    const response = await api.getProducts()
-    if (response.data) {
-      // Filter only active products with stock
-      const activeProducts = response.data.filter((p: Product) => p.status === "Active" && p.quantidade > 0)
+    try {
+      setIsLoadingProducts(true)
+      const response = await api.getProducts()
+
+      const productsData = Array.isArray(response.data?.products)
+        ? response.data.products
+        : Array.isArray(response.data)
+        ? response.data
+        : []
+
+      const activeProducts = productsData.filter(
+        (p: Product) => p.status === "Active" && p.quantidade > 0
+      )
+
       setProducts(activeProducts)
+    } catch (err) {
+      console.error("Erro ao carregar produtos:", err)
+      setError("Erro ao carregar produtos. Tente novamente.")
+      setProducts([])
+    } finally {
+      setIsLoadingProducts(false)
     }
-    setIsLoadingProducts(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
 
-    const selectedProduct = products.find((p) => p.id.toString() === selectedProductId)
+    const selectedProduct = products.find(
+      (p) => p.id.toString() === selectedProductId
+    )
+
     if (!selectedProduct) {
       setError("Selecione um produto válido")
       return
@@ -64,37 +92,49 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
 
     const qty = Number.parseInt(quantity)
     if (qty > selectedProduct.quantidade) {
-      setError(`Estoque insuficiente. Disponível: ${selectedProduct.quantidade} unidades`)
+      setError(
+        `Estoque insuficiente. Disponível: ${selectedProduct.quantidade} unidades`
+      )
       return
     }
 
     setIsLoading(true)
 
-    const response = await api.createSale({
-      product_id: Number.parseInt(selectedProductId),
-      quantity: qty,
-    })
+    try {
+      const response = await api.createSale({
+        product_id: Number.parseInt(selectedProductId),
+        quantity: qty,
+      })
 
-    if (response.error) {
-      setError(response.error)
+      if (response.error) {
+        setError(response.error)
+      } else {
+        onClose(true)
+      }
+    } catch (err) {
+      console.error("Erro ao criar venda:", err)
+      setError("Erro ao registrar venda. Tente novamente.")
+    } finally {
       setIsLoading(false)
-    } else {
-      setIsLoading(false)
-      onClose(true)
     }
   }
 
-  const selectedProduct = products.find((p) => p.id.toString() === selectedProductId)
+  const selectedProduct = products.find(
+    (p) => p.id.toString() === selectedProductId
+  )
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Nova Venda</DialogTitle>
-          <DialogDescription>Selecione o produto e a quantidade para registrar a venda</DialogDescription>
+          <DialogDescription>
+            Selecione o produto e a quantidade para registrar a venda
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Produto */}
           <div className="space-y-2">
             <Label htmlFor="product">Produto</Label>
             {isLoadingProducts ? (
@@ -108,7 +148,9 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {products.length === 0 ? (
-                    <div className="p-4 text-sm text-muted-foreground text-center">Nenhum produto disponível</div>
+                    <div className="p-4 text-sm text-muted-foreground text-center">
+                      Nenhum produto disponível
+                    </div>
                   ) : (
                     products.map((product) => (
                       <SelectItem key={product.id} value={product.id.toString()}>
@@ -121,6 +163,7 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
             )}
           </div>
 
+          {/* Informações do produto */}
           {selectedProduct && (
             <div className="p-4 rounded-lg bg-muted/50 space-y-2">
               <div className="flex justify-between text-sm">
@@ -134,11 +177,14 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Estoque disponível:</span>
-                <span className="font-medium">{selectedProduct.quantidade} unidades</span>
+                <span className="font-medium">
+                  {selectedProduct.quantidade} unidades
+                </span>
               </div>
             </div>
           )}
 
+          {/* Quantidade */}
           <div className="space-y-2">
             <Label htmlFor="quantity">Quantidade</Label>
             <Input
@@ -154,6 +200,7 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
             />
           </div>
 
+          {/* Valor total */}
           {selectedProduct && quantity && Number.parseInt(quantity) > 0 && (
             <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
               <div className="flex justify-between items-center">
@@ -162,21 +209,36 @@ export function SaleDialog({ open, onClose }: SaleDialogProps) {
                   {new Intl.NumberFormat("pt-BR", {
                     style: "currency",
                     currency: "BRL",
-                  }).format(selectedProduct.preco * Number.parseInt(quantity))}
+                  }).format(
+                    selectedProduct.preco * Number.parseInt(quantity)
+                  )}
                 </span>
               </div>
             </div>
           )}
 
+          {/* Erros */}
           {error && (
-            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg animate-in fade-in">{error}</div>
+            <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg animate-in fade-in">
+              {error}
+            </div>
           )}
 
+          {/* Botões */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onClose()} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onClose()}
+              className="flex-1"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading || !selectedProductId || !quantity} className="flex-1">
+            <Button
+              type="submit"
+              disabled={isLoading || !selectedProductId || !quantity}
+              className="flex-1"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
