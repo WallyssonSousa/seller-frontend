@@ -14,10 +14,10 @@ import { SaleDialog } from "@/components/sale-dialog"
 interface Sale {
   id: number
   product_id: number
-  product_name?: string
+  product_nome?: string
   quantity: number
-  total_price?: number
-  sale_date?: string
+  price?: number
+  created_at?: string
   seller_name?: string
 }
 
@@ -35,7 +35,7 @@ export default function SalesPage() {
   useEffect(() => {
     const filtered = sales.filter(
       (sale) =>
-        sale.product_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sale.product_nome?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sale.seller_name?.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     setFilteredSales(filtered)
@@ -141,7 +141,7 @@ export default function SalesPage() {
                             Venda #{sale.id.toString().padStart(4, "0")}
                           </CardTitle>
                           <CardDescription className="line-clamp-1">
-                            {sale.product_name || `Produto ID: ${sale.product_id}`}
+                            {sale.product_nome || `Produto ID: ${sale.product_id}`}
                           </CardDescription>
                         </div>
                       </div>
@@ -164,11 +164,11 @@ export default function SalesPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Valor Total</p>
                           <p className="font-medium">
-                            {sale.total_price
+                            {sale.price
                               ? new Intl.NumberFormat("pt-BR", {
                                   style: "currency",
                                   currency: "BRL",
-                                }).format(sale.total_price)
+                                }).format(sale.price)
                               : "N/A"}
                           </p>
                         </div>
@@ -177,7 +177,7 @@ export default function SalesPage() {
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                         <div>
                           <p className="text-sm text-muted-foreground">Data</p>
-                          <p className="font-medium text-sm">{formatDate(sale.sale_date)}</p>
+                          <p className="font-medium text-sm">{formatDate(sale.created_at)}</p>
                         </div>
                       </div>
                       {sale.seller_name && (
