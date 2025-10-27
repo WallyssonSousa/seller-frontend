@@ -44,9 +44,12 @@ export default function SalesPage() {
   const loadSales = async () => {
     setIsLoading(true)
     const response = await api.getSales()
-    if (response.data) {
-      setSales(response.data)
-      setFilteredSales(response.data)
+    if(response.data?.sales){
+      setSales(response.data.sales)
+      setFilteredSales(response.data.sales)
+    } else {
+      setSales([])
+      setFilteredSales([])
     }
     setIsLoading(false)
   }

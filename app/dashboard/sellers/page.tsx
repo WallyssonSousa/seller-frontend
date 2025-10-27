@@ -46,9 +46,12 @@ export default function SellersPage() {
   const loadSellers = async () => {
     setIsLoading(true)
     const response = await api.getSellers()
-    if (response.data) {
-      setSellers(response.data)
-      setFilteredSellers(response.data)
+    if(response.data?.users){
+      setSellers(response.data.users)
+      setFilteredSellers(response.data.users)
+    } else {
+      setSellers([])
+      setFilteredSellers([])
     }
     setIsLoading(false)
   }

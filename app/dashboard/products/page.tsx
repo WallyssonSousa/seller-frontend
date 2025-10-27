@@ -40,13 +40,13 @@ export default function ProductsPage() {
   const loadProducts = async () => {
     setIsLoading(true)
     const response = await api.getProducts()
-    if (Array.isArray(response.data)) {
-      setProducts(response.data)
-      setFilteredProducts(response.data)
-    } else {
-      setProducts([])
-      setFilteredProducts([])
-    }
+
+    const data = response.data 
+
+    const productsArray = Array.isArray(data) ? data : Array.isArray(data?.products) ? data.products : []
+
+    setProducts(productsArray)
+    setFilteredProducts(productsArray)
     setIsLoading(false)
   }
 
