@@ -80,7 +80,7 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle>Bem-vindo ao Seller</CardTitle>
               <CardDescription>
-                Sistema completo de gestão de vendas, produtos e sellers com design moderno e intuitivo
+                Sistema completo de gestão de vendas, produtos e sellers
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
