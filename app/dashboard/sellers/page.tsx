@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Edit, UsersIcon, Loader2, Mail, Phone, Building2 } from "lucide-react"
 import { api } from "@/lib/api"
 import { SellerDialog } from "@/components/seller-dialog"
+import { maskCNPJ, maskPhone } from "@/utils/masks"
 
 interface Seller {
   id: number
@@ -18,7 +19,6 @@ interface Seller {
   email: string
   celular: string
   status?: string
-  verified?: boolean
 }
 
 export default function SellersPage() {
@@ -46,7 +46,7 @@ export default function SellersPage() {
   const loadSellers = async () => {
     setIsLoading(true)
     const response = await api.getSellers()
-    if(response.data?.users){
+    if (response.data?.users) {
       setSellers(response.data.users)
       setFilteredSellers(response.data.users)
     } else {
@@ -123,12 +123,18 @@ export default function SellersPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-lg line-clamp-1">{seller.name}</CardTitle>
-                          <CardDescription className="line-clamp-1">{seller.cnpj}</CardDescription>
+                          <CardDescription className="line-clamp-1">{maskCNPJ(seller.cnpj)}</CardDescription>
                         </div>
                       </div>
-                      <Badge variant={seller.verified ? "default" : "secondary"} className="shrink-0">
-                        {seller.verified ? "Verificado" : "Pendente"}
+                      <Badge
+                        className={`shrink-0 ${seller.status
+                            ? "bg-green-500 text-white hover:bg-green-600"   
+                            : "bg-gray-400 text-white hover:bg-gray-500"     
+                          }`}
+                      >
+                        {seller.status ? "Ativo" : "Inativo"}
                       </Badge>
+
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -139,11 +145,11 @@ export default function SellersPage() {
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Phone className="h-4 w-4 shrink-0" />
-                        <span>{seller.celular}</span>
+                        <span>{maskPhone(seller.celular)}</span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Building2 className="h-4 w-4 shrink-0" />
-                        <span className="truncate">{seller.cnpj}</span>
+                        <span className="truncate">{maskCNPJ(seller.cnpj)}</span>
                       </div>
                     </div>
                     <Button
