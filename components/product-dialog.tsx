@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { api } from "@/lib/api"
+import { ImageUpload } from "./image-upload"
 
 interface Product {
   id: number
@@ -150,12 +151,9 @@ export function ProductDialog({ open, onClose, product }: ProductDialogProps) {
 
           <div className="space-y-2">
             <Label htmlFor="image">URL da Imagem (opcional)</Label>
-            <Input
-              id="image"
-              type="url"
+            <ImageUpload 
               value={formData.image}
-              onChange={(e) => handleChange("image", e.target.value)}
-              placeholder="https://exemplo.com/imagem.jpg"
+              onChange={(val) => handleChange("image", val)}
             />
           </div>
 
