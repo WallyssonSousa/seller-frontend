@@ -145,7 +145,7 @@ export default function SalesPage() {
                           </CardDescription>
                         </div>
                       </div>
-                      <Badge variant="default" className="shrink-0 w-fit">
+                      <Badge variant="default" className="shrink-0 w-fit bg-green-500 text-gray-200">
                         Concluída
                       </Badge>
                     </div>
