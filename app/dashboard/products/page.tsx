@@ -41,7 +41,7 @@ export default function ProductsPage() {
     setIsLoading(true)
     const response = await api.getProducts()
 
-    const data = response.data 
+    const data = response.data
 
     const productsArray = Array.isArray(data) ? data : Array.isArray(data?.products) ? data.products : []
 
@@ -141,9 +141,15 @@ export default function ProductsPage() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-lg line-clamp-1">{product.nome}</CardTitle>
-                      <Badge variant={product.status === "Active" ? "default" : "secondary"} className="shrink-0">
-                        {product.status === "Active" ? "Ativo" : "Inativo"}
+                      <Badge
+                        className={`shrink-0 ${product.status?.trim().toLowerCase() === "active"
+                            ? "bg-green-500 text-white hover:bg-green-600"   
+                            : "bg-red-500 text-white hover:bg-red-600"       
+                          }`}
+                      >
+                        {product.status?.trim().toLowerCase() === "active" ? "Ativo" : "Inativo"}
                       </Badge>
+
                     </div>
                     <CardDescription>Estoque: {product.quantidade} unidades</CardDescription>
                   </CardHeader>
