@@ -188,6 +188,12 @@ class ApiClient {
       body: JSON.stringify(payload),
     })
   }
+
+  async inactivateSale(id: number){
+    return this.request(`/sale/${id}/inactivate`, {
+      method: "PATCH"
+    })
+  }
 }
 
 export const api = new ApiClient(API_BASE_URL)

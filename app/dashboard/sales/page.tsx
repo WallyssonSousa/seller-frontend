@@ -19,6 +19,7 @@ interface Sale {
   price?: number
   created_at?: string
   seller_name?: string
+  status?: boolean
 }
 
 export default function SalesPage() {
@@ -44,7 +45,7 @@ export default function SalesPage() {
   const loadSales = async () => {
     setIsLoading(true)
     const response = await api.getSales()
-    if(response.data?.sales){
+    if (response.data?.sales) {
       setSales(response.data.sales)
       setFilteredSales(response.data.sales)
     } else {
@@ -96,7 +97,7 @@ export default function SalesPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por produto ou seller..."
+              placeholder="Buscar..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -145,11 +146,40 @@ export default function SalesPage() {
                           </CardDescription>
                         </div>
                       </div>
-                      <Badge variant="default" className="shrink-0 w-fit bg-green-500 text-gray-200">
-                        Concluída
-                      </Badge>
+
+                      {sale.status ? (
+                        <Badge variant="default" className="shrink-0 w-fit bg-green-500 text-gray-200">
+                          Ativa
+                        </Badge>
+                      ) : (
+                        <Badge variant="default" className="shrink-0 w-fit bg-gray-600 text-gray-200">
+                          Inativa
+                        </Badge>
+                      )}
+
+                      
+                      {sale.status && (
+                        <Button
+                          variant="destructive"
+                          className="shrink-0 hover:scale-105 transition-all"
+                          onClick={async () => {
+                            if (!confirm("Tem certeza que deseja inativar esta venda?")) return
+
+                            const response = await api.inactivateSale(sale.id)
+                            if (response.error) {
+                              alert(response.error)
+                            } else {
+                              alert("Venda desativada com sucesso!")
+                              loadSales()
+                            }
+                          }}
+                        >
+                          Desativar
+                        </Button>
+                      )}
                     </div>
                   </CardHeader>
+
                   <CardContent>
                     <div className="grid gap-4 md:grid-cols-4">
                       <div className="flex items-center gap-3">
@@ -166,9 +196,9 @@ export default function SalesPage() {
                           <p className="font-medium">
                             {sale.price
                               ? new Intl.NumberFormat("pt-BR", {
-                                  style: "currency",
-                                  currency: "BRL",
-                                }).format(sale.price)
+                                style: "currency",
+                                currency: "BRL",
+                              }).format(sale.price)
                               : "N/A"}
                           </p>
                         </div>
